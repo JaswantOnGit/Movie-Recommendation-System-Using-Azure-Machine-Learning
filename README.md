@@ -4,7 +4,7 @@
 ![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-An end-to-end movie recommendation system built with Azure Machine Learning, featuring collaborative filtering, content-based algorithms, and real-time deployment capabilities.
+An end to end movie recommendation system built with Azure Machine Learning, featuring collaborative filtering, content-based algorithms, and real time deployment capabilities.
 
 ## 📋 Table of Contents
 - [Overview](#overview)
@@ -71,7 +71,7 @@ This project implements a production-ready movie recommendation system leveragin
 │  ┌──────────────────────────────┐  │
 │  │  Model Training              │  │
 │  │  • Collaborative Filtering   │  │
-│  │  • Content-Based Filtering   │  │
+│  │  • Content Based Filtering   │  │
 │  │  • Hybrid Models             │  │
 │  └───────────┬──────────────────┘  │
 │              │                      │
@@ -92,7 +92,7 @@ This project implements a production-ready movie recommendation system leveragin
                ▼
 ┌─────────────────────────────────────┐
 │   Azure ML Endpoint                 │
-│   (Real-time Inference)             │
+│   (Real time Inference)             │
 └─────────────────────────────────────┘
                │
                ▼
@@ -153,8 +153,8 @@ This project implements a production-ready movie recommendation system leveragin
 **Collaborative Filtering:**
 - SVD (Singular Value Decomposition)
 - Matrix Factorization with ALS
-- User-based KNN
-- Item-based KNN
+- User based KNN
+- Item based KNN
 
 **Content-Based Filtering:**
 - TF-IDF on movie genres
@@ -175,8 +175,8 @@ This project implements a production-ready movie recommendation system leveragin
 
 | Metric | Score |
 |--------|-------|
-| RMSE | 0.92 |
-| MAE | 0.73 |
+| RMSE | 1.70 |
+| MAE | 1.28 |
 | Precision@10 | 0.85 |
 | Recall@10 | 0.68 |
 | MAP | 0.78 |
