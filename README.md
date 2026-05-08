@@ -1,251 +1,267 @@
-# 🎬 Movie Recommendation System using Azure Machine Learning
+# Movie Recommendation System using Azure Machine Learning
 
 ![Azure](https://img.shields.io/badge/Azure-ML-0078D4?style=flat-square&logo=microsoft-azure)
-![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square&logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
-![Status](https://img.shields.io/badge/Pipeline-Completed-brightgreen?style=flat-square)
+![CI](https://github.com/JaswantOnGit/Movie-Recommendation-System-Using-Azure-Machine-Learning/actions/workflows/ci.yml/badge.svg)
 
-An end-to-end movie recommendation system built with Azure Machine Learning, featuring collaborative filtering using SVD matrix factorization and real-time deployment capabilities on Azure Container Instances.
+An end-to-end movie recommendation system built with Azure Machine Learning, featuring collaborative filtering using SVD matrix factorization.
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Overview](#-overview)
-- - [Architecture](#-architecture)
-  - - [Technologies Used](#-technologies-used)
-    - - [Dataset](#-dataset)
-      - - [Azure ML Pipeline](#-azure-ml-pipeline)
-        - - [Model Performance](#-model-performance)
-          - - [Sample Results](#-sample-results)
-            - - [Deployment](#-deployment)
-              - - [Installation & Usage](#-installation--usage)
-                - - [Future Enhancements](#-future-enhancements)
-                  - - [Contact](#-contact)
-                   
-                    - ---
+- [Overview](#overview)
+- [Repository Structure](#repository-structure)
+- [Architecture](#architecture)
+- [Technologies Used](#technologies-used)
+- [Dataset](#dataset)
+- [Azure ML Pipeline](#azure-ml-pipeline)
+- [Model Performance](#model-performance)
+- [Sample Results](#sample-results)
+- [Local Setup](#local-setup)
+- [API Usage](#api-usage)
+- [Running Tests](#running-tests)
+- [Future Enhancements](#future-enhancements)
+- [Contact](#contact)
 
-                    ## 🎯 Overview
+---
 
-                    This project implements a production-ready movie recommendation system leveraging Azure Machine Learning's cloud infrastructure. The system processes movie ratings data to generate personalized recommendations using collaborative filtering (SVD) with real-time inference served via Azure Container Instances.
+## Overview
 
-                    **Project Objectives:**
-                    - Build a scalable recommendation engine using Azure ML Designer
-                    - - Deploy a real-time inference endpoint via Azure Container Instances
-                      - - Implement an end-to-end ML pipeline with data ingestion, preprocessing, training, scoring, and evaluation
-                        - - Achieve strong recommendation accuracy with optimized SVD matrix factorization
-                         
-                          - ---
+This project implements a movie recommendation engine using Azure Machine Learning's cloud infrastructure. The system processes MovieLens-style rating data to generate personalised recommendations via collaborative filtering (SVD). A Flask REST API serves predictions and is designed for deployment on Azure Container Instances.
 
-                          ## 🏗️ Architecture
+**Project objectives:**
 
-                          The system follows a cloud-native pipeline architecture across six stages:
+- Build a scalable recommendation engine using Azure ML Designer
+- Implement reproducible preprocessing, training, and scoring scripts
+- Expose a REST endpoint (`/score`) for real-time top-N recommendations
+- Apply CI with GitHub Actions (lint + pytest) on every push
 
-                          ![System Architecture](architecture-diagram.png)
+---
 
-                          | Step | Component | Purpose |
-                          |------|-----------|---------|
-                          | 1 | User & Movie Interaction Data | Raw ratings input |
-                          | 2 | Azure Blob Storage | Scalable cloud data store |
-                          | 3 | Data Science Virtual Machine (DSVM) | Model training compute |
-                          | 4 | Azure Machine Learning Service | Pipeline orchestration & model registry |
-                          | 5 | Azure Cosmos DB | Persistent recommendation storage |
-                          | 6 | Azure Container Instances | Real-time model serving endpoint |
+## Repository Structure
 
-                          ---
+```
+.
+├── .github/
+│   └── workflows/
+│       └── ci.yml            # GitHub Actions CI (flake8 lint + pytest)
+├── src/
+│   ├── preprocess.py         # Data loading, merging, and cleaning
+│   ├── train.py              # SVD model training + 5-fold cross-validation
+│   └── score.py              # Flask REST API for real-time inference
+├── tests/
+│   ├── test_preprocess.py    # Unit tests for preprocess.py
+│   └── test_score.py         # Unit tests for score.py (Flask test client)
+├── .env.example              # Environment variable template
+├── requirements.txt          # Python dependencies
+└── README.md
+```
 
-                          ## 🛠️ Technologies Used
+---
 
-                          **Cloud Platform:**
-                          - Azure Machine Learning Studio (Designer)
-                          - - Azure Blob Storage
-                            - - Azure Container Instances
-                              - - Azure Cosmos DB
-                                - - Data Science Virtual Machine (DSVM)
-                                 
-                                  - **Programming & Libraries:**
-                                  - - Python 3.8+
-                                    - - Pandas & NumPy (Data manipulation)
-                                      - - Scikit-learn (Machine Learning utilities)
-                                        - - Azure ML SDK (Pipeline & deployment)
-                                         
-                                          - **Algorithms:**
-                                          - - SVD (Singular Value Decomposition) — via Azure ML Train SVD Recommender
-                                            - - Matrix Factorization
-                                              - - Content-Based Filtering (cosine similarity fallback)
-                                               
-                                                - ---
+## Architecture
 
-                                                ## 📊 Dataset
+The system follows a cloud-native pipeline across six stages:
 
-                                                - **Source:** MovieLens dataset
-                                                - - **Scale:** 22,483 scored user-item pairs in the test set
-                                                  - - **Features:** UserId, Movie Name, Rating
-                                                    - - **Task:** Predict user ratings for unseen movies
-                                                     
-                                                      - ---
+| Step | Component | Purpose |
+|------|-----------|---------|
+| 1 | User & Movie Interaction Data | Raw ratings input |
+| 2 | Azure Blob Storage | Scalable cloud data store |
+| 3 | Data Science Virtual Machine | Model training compute |
+| 4 | Azure Machine Learning Service | Pipeline orchestration & model registry |
+| 5 | Azure Cosmos DB | Persistent recommendation storage |
+| 6 | Azure Container Instances | Real-time model serving endpoint |
 
-                                                      ## 🔧 Azure ML Pipeline
+![Architecture Diagram](architecture-diagram.png)
 
-                                                      The full ML pipeline was built and executed in Azure ML Designer:
+---
 
-                                                      ![Azure ML Pipeline](azure-ml-pipeline.png)
+## Technologies Used
 
-                                                      **Pipeline Steps:**
-                                                      1. **Data Ingestion** — `movie_ratings` and `imdb_movie_titles` datasets loaded from registered Azure ML datasets
-                                                      2. 2. **Join Data** — Merge ratings with movie metadata on movie ID
-                                                         3. 3. **Execute Python Script** — Select and clean relevant columns (`UserId`, `Movie Name`, `Rating`)
-                                                            4. 4. **Remove Duplicate Rows** — Deduplicate merged dataset
-                                                               5. 5. **Split Data** — Train/test split for model evaluation
-                                                                  6. 6. **Train SVD Recommender** — Train matrix factorization model on training set
-                                                                     7. 7. **Score SVD Recommender** — Generate predicted ratings on test set
-                                                                        8. 8. **Evaluate Recommender** — Compute evaluation metrics
-                                                                          
-                                                                           9. **Python Preprocessing Script (Execute Python Script module):**
-                                                                          
-                                                                           10. ![Python Script](azure-ml-python-script.png)
-                                                                          
-                                                                           11. ```python
-                                                                               def azureml_main(dataframe1=None, dataframe2=None):
-                                                                                   df1 = dataframe1[['UserId', 'Movie Name', 'Rating']]
-                                                                                   return df1,
-                                                                               ```
+**Cloud:** Azure Machine Learning Studio (Designer), Azure Blob Storage, Azure Container Instances, Azure Cosmos DB, DSVM
 
-                                                                               ---
+**Code:** Python 3.9+, Pandas, NumPy, scikit-learn, scikit-surprise, Flask, Azure ML SDK
 
-                                                                               ## 📈 Model Performance
+**Algorithm:** SVD (Singular Value Decomposition) matrix factorization
 
-                                                                               The pipeline completed successfully on **April 26, 2026**:
+---
 
-                                                                               ![Pipeline Metrics](pipeline-metrics.png)
+## Dataset
 
-                                                                               | Metric | Score |
-                                                                               |--------|-------|
-                                                                               | **MAE** | 1.287 |
-                                                                               | **RMSE** | 1.708 |
-                                                                               | **R²** | 0.150 |
-                                                                               | **Explained Variance** | 0.150 |
+- **Source:** MovieLens dataset
+- **Scale:** 22,483 scored user-item pairs in the test set
+- **Features:** UserId, Movie Name, Rating (scale 1–10)
+- **Task:** Predict user ratings for unseen movies
 
-                                                                               **Pipeline Status:** ✅ Completed
-                                                                               **Job:** `Pipeline-Created-on-04-26-2026` under `Movie-Recommender` experiment
+---
 
-                                                                               ---
+## Azure ML Pipeline
 
-                                                                               ## 🎬 Sample Results
+The full pipeline was built in Azure ML Designer:
 
-                                                                               The scored dataset contains 22,483 user-movie pairs with predicted ratings:
+1. **Data Ingestion** — load `movie_ratings` and `imdb_movie_titles` datasets
+2. **Join Data** — merge ratings with movie metadata on movie ID
+3. **Execute Python Script** — select and clean columns (`UserId`, `Movie Name`, `Rating`)
+4. **Remove Duplicate Rows** — deduplicate merged dataset
+5. **Split Data** — train/test split
+6. **Train SVD Recommender** — fit matrix factorization model
+7. **Score SVD Recommender** — generate predicted ratings on test set
+8. **Evaluate Recommender** — compute evaluation metrics
 
-                                                                               ![Scored Dataset](scored-dataset.png)
+![Azure ML Pipeline](azure-ml-pipeline.png)
 
-                                                                               **Sample Recommendations (Scored Output):**
+**Equivalent local pipeline:**
 
-                                                                               | User ID | Movie | Predicted Rating |
-                                                                               |---------|-------|-----------------|
-                                                                               | 17347 | Django Unchained (2012) | 8.02 |
-                                                                               | 8219 | American Hustle (2013) | 7.48 |
-                                                                               | 9540 | Indie Game: The Movie (2012) | 7.41 |
-                                                                               | 10878 | The Way (2010) | 7.36 |
-                                                                               | 4881 | The World's End (2013) | 6.90 |
-                                                                               | 674 | The Hangover Part III (2013) | 6.55 |
-                                                                               | 20041 | Hustle & Flow (2005) | 6.80 |
+```bash
+python src/preprocess.py \
+  --ratings data/raw/movie_ratings.csv \
+  --movies  data/raw/imdb_movie_titles.csv \
+  --output  data/processed/cleaned_ratings.csv
 
-                                                                               ---
+python src/train.py \
+  --input  data/processed/cleaned_ratings.csv \
+  --output models/svd_model.pkl
+```
 
-                                                                               ## 🚀 Deployment
+---
 
-                                                                               **Real-time Endpoint via Azure Container Instances:**
-                                                                               - Deployed via Azure ML Managed Endpoints
-                                                                               - - Auto-scaling enabled (min 1, max 5 instances)
-                                                                                 - - Authentication: Key-based
-                                                                                   - - Monitoring enabled with Application Insights
-                                                                                    
-                                                                                     - **API Usage Example:**
-                                                                                    
-                                                                                     - ```python
-                                                                                       import requests
-                                                                                       import json
+## Model Performance
 
-                                                                                       endpoint_url = "https://your-endpoint.azureml.net/score"
-                                                                                       api_key = "your-api-key"
+Pipeline completed: **26 April 2026**
 
-                                                                                       headers = {
-                                                                                           "Content-Type": "application/json",
-                                                                                           "Authorization": f"Bearer {api_key}"
-                                                                                       }
+| Metric | Score | Context |
+|--------|-------|---------|
+| MAE | 1.287 | Mean absolute error on 1–10 scale |
+| RMSE | 1.708 | Root mean squared error |
+| R² | 0.150 | Variance explained above global-mean baseline |
+| Explained Variance | 0.150 | |
 
-                                                                                       data = {
-                                                                                           "user_id": 123,
-                                                                                           "top_n": 10
-                                                                                       }
+> **Honest assessment:** An R² of 0.15 means the model explains 15% of the variance above the trivial global-mean predictor. Typical SVD on MovieLens-100k achieves R² of 0.30–0.45. The low score is likely due to the small dataset size (22k pairs) and default hyperparameters. Improvements planned: hyperparameter tuning (`n_factors`, `n_epochs`), cross-validation grid search, and adding implicit feedback signals.
 
-                                                                                       response = requests.post(endpoint_url, headers=headers, data=json.dumps(data))
-                                                                                       recommendations = response.json()
-                                                                                       print(recommendations)
-                                                                                       ```
+![Pipeline Metrics](pipeline-metrics.png)
 
-                                                                                       ---
+---
 
-                                                                                       ## 💻 Installation & Usage
+## Sample Results
 
-                                                                                       ### Prerequisites
-                                                                                       - Python 3.8+
-                                                                                       - - Azure subscription with an ML workspace
-                                                                                         - - Azure CLI installed
-                                                                                          
-                                                                                           - ### Local Setup
-                                                                                          
-                                                                                           - ```bash
-                                                                                             # Clone repository
-                                                                                             git clone https://github.com/JaswantOnGit/Movie-Recommendation-System-Using-Azure-Machine-Learning.git
-                                                                                             cd Movie-Recommendation-System-Using-Azure-Machine-Learning
+![Scored Dataset](scored-dataset.png)
 
-                                                                                             # Create virtual environment
-                                                                                             python -m venv venv
-                                                                                             source venv/bin/activate  # On Windows: venv\Scripts\activate
+| User ID | Movie | Predicted Rating |
+|---------|-------|-----------------|
+| 17347 | Django Unchained (2012) | 8.02 |
+| 8219 | American Hustle (2013) | 7.48 |
+| 9540 | Indie Game: The Movie (2012) | 7.41 |
 
-                                                                                             # Install dependencies
-                                                                                             pip install -r requirements.txt
+---
 
-                                                                                             # Set up Azure credentials
-                                                                                             az login
-                                                                                             az account set --subscription <your-subscription-id>
-                                                                                             ```
+## Local Setup
 
-                                                                                             ---
+### Prerequisites
 
-                                                                                             ## 🔮 Future Enhancements
+- Python 3.9+
+- Azure subscription with an ML workspace (for cloud features)
+- Azure CLI (for cloud deployment)
 
-                                                                                             - Implement deep learning models (Neural Collaborative Filtering)
-                                                                                             - - Add explainability features (LIME/SHAP) for recommendation transparency
-                                                                                               - - Integrate reinforcement learning for adaptive recommendations
-                                                                                                 - - A/B testing framework for model comparison
-                                                                                                   - - Real-time user feedback loop for continuous retraining
-                                                                                                     - - Multi-modal recommendations (trailers, posters)
-                                                                                                       - - Implement diversity and serendipity metrics
-                                                                                                         - - Deploy batch inference pipeline for offline scoring
-                                                                                                          
-                                                                                                           - ---
-                                                                                                           
-                                                                                                           ## 📞 Contact
-                                                                                                           
-                                                                                                           **Jay Banga**
-                                                                                                           - LinkedIn: [linkedin.com/in/jaybanga](https://linkedin.com/in/jaybanga)
-                                                                                                           - - GitHub: [JaswantOnGit](https://github.com/JaswantOnGit)
-                                                                                                            
-                                                                                                             - ---
-                                                                                                             
-                                                                                                             ## 📝 License
-                                                                                                             
-                                                                                                             This project is licensed under the MIT License.
-                                                                                                             
-                                                                                                             ---
-                                                                                                             
-                                                                                                             ## 🙏 Acknowledgments
-                                                                                                             
-                                                                                                             - Azure Machine Learning documentation and community
-                                                                                                             - - Open-source Python libraries and their maintainers
-                                                                                                              
-                                                                                                               - ---
-                                                                                                               
-                                                                                                               ⭐ If you found this project helpful, please consider giving it a star! ⭐
-                                                                                                               
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/JaswantOnGit/Movie-Recommendation-System-Using-Azure-Machine-Learning.git
+cd Movie-Recommendation-System-Using-Azure-Machine-Learning
+
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment variables
+cp .env.example .env
+# Edit .env and fill in your Azure credentials
+```
+
+---
+
+## API Usage
+
+Start the local inference server:
+
+```bash
+MODEL_PATH=models/svd_model.pkl DATA_PATH=data/processed/cleaned_ratings.csv python src/score.py
+```
+
+**Health check:**
+```bash
+curl http://localhost:5000/health
+# {"status": "ok"}
+```
+
+**Get recommendations:**
+```python
+import requests, json
+
+response = requests.post(
+    "http://localhost:5000/score",
+    headers={"Content-Type": "application/json"},
+    data=json.dumps({"user_id": 123, "top_n": 5})
+)
+print(response.json())
+```
+
+**Example response:**
+```json
+{
+  "user_id": 123,
+  "top_n": 5,
+  "recommendations": [
+    {"movie": "Inception (2010)", "predicted_rating": 8.72},
+    {"movie": "The Dark Knight (2008)", "predicted_rating": 8.55}
+  ],
+  "model_info": {"type": "SVD (scikit-surprise)"}
+}
+```
+
+> **Note:** For production ACI deployment, replace `http://localhost:5000` with your endpoint URL from `.env` (`AML_ENDPOINT_URL`). See `.env.example` for configuration.
+
+---
+
+## Running Tests
+
+```bash
+pytest tests/ -v --cov=src
+```
+
+Tests run fully offline using mocks — no Azure credentials needed.
+
+---
+
+## Future Enhancements
+
+- Hyperparameter tuning (grid search over `n_factors`, `n_epochs`, regularisation)
+- Neural Collaborative Filtering (NCF) baseline comparison
+- Explainability (LIME/SHAP for recommendation transparency)
+- A/B testing framework for model comparison
+- Real-time user feedback loop for continuous retraining
+- Diversity and serendipity metrics
+- Batch inference pipeline for offline scoring
+
+---
+
+## Contact
+
+**Jay Banga**
+- LinkedIn: [linkedin.com/in/jaybanga](https://linkedin.com/in/jaybanga)
+- GitHub: [JaswantOnGit](https://github.com/JaswantOnGit)
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+---
+
+> If you found this project helpful, please consider giving it a star!
