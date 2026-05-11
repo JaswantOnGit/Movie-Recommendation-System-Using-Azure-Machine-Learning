@@ -5,7 +5,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 ![CI](https://github.com/JaswantOnGit/Movie-Recommendation-System-Using-Azure-Machine-Learning/actions/workflows/ci.yml/badge.svg)
 
-An end-to-end movie recommendation system built with Azure Machine Learning, featuring collaborative filtering using SVD matrix factorization.
+An end to end movie recommendation system built with Azure Machine Learning, featuring collaborative filtering using SVD matrix factorization.
 
 ---
 
@@ -35,7 +35,7 @@ This project implements a movie recommendation engine using Azure Machine Learni
 
 - Build a scalable recommendation engine using Azure ML Designer
 - Implement reproducible preprocessing, training, and scoring scripts
-- Expose a REST endpoint (`/score`) for real-time top-N recommendations
+- Expose a REST endpoint (`/score`) for real time top-N recommendations
 - Apply CI with GitHub Actions (lint + pytest) on every push
 
 ---
@@ -63,7 +63,7 @@ This project implements a movie recommendation engine using Azure Machine Learni
 
 ## Architecture
 
-The system follows a cloud-native pipeline across six stages:
+The system follows a cloud native pipeline across six stages:
 
 | Step | Component | Purpose |
 |------|-----------|---------|
@@ -252,8 +252,8 @@ Tests run fully offline using mocks — no Azure credentials needed.
 
 ## Contact
 
-**Jay Banga**
-- LinkedIn: [linkedin.com/in/jaybanga](https://linkedin.com/in/jaybanga)
+**Jaswant Singh**
+- LinkedIn: [linkedin.com/in/jaswant-singh-pmp/](https://linkedin.com/in/jaswant-singh-pmp/)
 - GitHub: [JaswantOnGit](https://github.com/JaswantOnGit)
 
 ---
